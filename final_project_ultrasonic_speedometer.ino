@@ -21,7 +21,9 @@ byte segValue[10][7] = {
    {1,1,1,1,1,1,1}, //8
    {1,1,1,1,0,0,1}  //9   
  };
-unsigned long prevTime = 0;
+unsigned long URMprevTime = 0;
+unsigned long buzzPrevTime = 0;
+
 bool URMtriggered = False;
 bool buzzTriggered = False;
 
@@ -106,11 +108,35 @@ void testNPSeg(){
   }
 }
 
-void buzzBySpd(int speed) {
+void triggerBuzz() {
   if (buzzTriggered) {
     noTone(buzzpin);
+    buzzTriggered = false;
   }else{
     tone(buzzpin, 950);
+    buzzTriggered = true;
+  }
+}
+
+void buzzBySpd(int speed) {
+  if (speed > 30){
+    // 속도가 30을 초과하면 지속적으로 소리 내기
+    tone(buzzpin, 950);
+  } else if (speed >= 25) {
+    // 속도가 30 이하 25 이상일 경우 300ms 주기로 삐빅임
+    if (millis() - buzzPrevTime > 300) {
+      triggerBuzz();
+      buzzPrevTime = millis();
+    }
+  } else if (speed < 25 && speed >= 20) {
+    // 속도가 25 미만 20 이상일 경우 300ms 주기로 삐빅임
+    if (millis() - buzzPrevTime > 700) {
+      triggerBuzz();
+      buzzPrevTime = millis();
+    }
+  } else {
+    // 소리 내지 않음
+    noTone(buzzpin);
   }
 }
 
@@ -119,6 +145,7 @@ void setup()
 	  pinMode(2, INPUT); //RX
     pinMode(3, OUTPUT); //TX
     pinMode(10, OUTPUT); // neoPixel
+    pinMode(buzzpin, OUTPUT); // buzzer
 
     Serial.begin(115200);
     urm07.begin(19200);
@@ -130,9 +157,9 @@ void loop()
 {
   if (!URMtriggered) {
 	  int distance_1 = urm07GetDistance(URM1);
-    prevTime = millis();
+    URMprevTime = millis();
     URMtriggered = True;
-  } else if (URMtriggered && millis() - prevTime > 1000) {
+  } else if (URMtriggered && millis() - URMprevTime > 1000) {
     int distance_2 = urm07GetDistance(URM1);
     URMtriggered = False;
   }
@@ -147,5 +174,5 @@ void loop()
   Serial.print("speed : "); Serial.println(speed);
   
   setNPSeg(abs(speed), 10, 10, 0);
-  if (speed <= 0) noTone();
+  buzzBySpd(speed);
 }
