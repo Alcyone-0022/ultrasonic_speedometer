@@ -21,6 +21,8 @@ byte segValue[10][7] = {
    {1,1,1,1,1,1,1}, //8
    {1,1,1,1,0,0,1}  //9   
  };
+unsigned long prevTime = 0;
+bool triggered = False;
 
 SoftwareSerial urm07(2, 3); // RX, TX
 Adafruit_NeoPixel np = Adafruit_NeoPixel(56, 10, NEO_GRB + NEO_KHZ800);
@@ -116,9 +118,15 @@ void setup()
 
 void loop()
 {
-	int distance_1 = urm07GetDistance(URM1);
-  delay(1000);
-  int distance_2 = urm07GetDistance(URM1);
+  if (!triggered) {
+	  int distance_1 = urm07GetDistance(URM1);
+    prevTime = millis();
+    triggered = True;
+  } else if (triggered && millis() - prevTime > 1000) {
+    int distance_2 = urm07GetDistance(URM1);
+    Triggered = False;
+  }
+  // delay(1000);
 
   int difference = distance_1 - distance_2;
   
