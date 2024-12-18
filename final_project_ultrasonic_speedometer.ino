@@ -22,8 +22,10 @@ byte segValue[10][7] = {
    {1,1,1,1,0,0,1}  //9   
  };
 unsigned long prevTime = 0;
-bool triggered = False;
+bool URMtriggered = False;
+bool buzzTriggered = False;
 
+byte buzzpin = D5;
 SoftwareSerial urm07(2, 3); // RX, TX
 Adafruit_NeoPixel np = Adafruit_NeoPixel(56, 10, NEO_GRB + NEO_KHZ800);
 
@@ -104,6 +106,14 @@ void testNPSeg(){
   }
 }
 
+void buzzBySpd(int speed) {
+  if (buzzTriggered) {
+    noTone(buzzpin);
+  }else{
+    tone(buzzpin, 950);
+  }
+}
+
 void setup()
 {
 	  pinMode(2, INPUT); //RX
@@ -118,13 +128,13 @@ void setup()
 
 void loop()
 {
-  if (!triggered) {
+  if (!URMtriggered) {
 	  int distance_1 = urm07GetDistance(URM1);
     prevTime = millis();
-    triggered = True;
-  } else if (triggered && millis() - prevTime > 1000) {
+    URMtriggered = True;
+  } else if (URMtriggered && millis() - prevTime > 1000) {
     int distance_2 = urm07GetDistance(URM1);
-    Triggered = False;
+    URMtriggered = False;
   }
   // delay(1000);
 
@@ -137,4 +147,5 @@ void loop()
   Serial.print("speed : "); Serial.println(speed);
   
   setNPSeg(abs(speed), 10, 10, 0);
+  if (speed <= 0) noTone();
 }
