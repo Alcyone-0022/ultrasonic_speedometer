@@ -82,7 +82,8 @@ int urm07GetDistance(unsigned char address) {
 
     //Rx_DATA[5] - distance High
     //Rx_DATA[6] - distance Low
-    distance = Rx_DATA[5] + Rx_DATA[6];
+    distance |= Rx_DATA[5]<<8;
+    distance |= Rx_DATA[6];
     
     // ??
     if(Rx_DATA[7] < 20)
