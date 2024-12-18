@@ -129,7 +129,7 @@ void buzzBySpd(int speed) {
       buzzPrevTime = millis();
     }
   } else if (speed < 25 && speed >= 20) {
-    // 속도가 25 미만 20 이상일 경우 300ms 주기로 삐빅임
+    // 속도가 25 미만 20 이상일 경우 700ms 주기로 삐빅임
     if (millis() - buzzPrevTime > 700) {
       triggerBuzz();
       buzzPrevTime = millis();
