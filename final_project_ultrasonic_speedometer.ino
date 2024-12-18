@@ -124,11 +124,11 @@ void buzzBySpd(int speed) {
     tone(buzzpin, 950);
   } else if (speed >= 25) {
     // 속도가 30 이하 25 이상일 경우 300ms 주기로 삐빅임
-    if (millis() - buzzPrevTime > 300) {
+    if (!buzzTriggered && millis() - buzzPrevTime > 300) {
       triggerBuzz();
       buzzPrevTime = millis();
     }
-  } else if (speed < 25 && speed >= 20) {
+  } else if (!buzzTriggered && speed < 25 && speed >= 20) {
     // 속도가 25 미만 20 이상일 경우 700ms 주기로 삐빅임
     if (millis() - buzzPrevTime > 700) {
       triggerBuzz();
@@ -174,5 +174,5 @@ void loop()
   Serial.print("speed : "); Serial.println(speed);
   
   setNPSeg(abs(speed), 10, 10, 0);
-  buzzBySpd(speed);
+  buzzBySpd(abs(speed));
 }
